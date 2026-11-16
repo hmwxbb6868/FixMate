@@ -2,7 +2,7 @@
 
 # 安心家电修 · FixMate
 
-**面向家电维修服务的报修、派单与工单管理系统**
+**基于 Java 21 和 Spring Boot 的家电报修、派单与工单管理系统**
 
 ![Java 21](https://img.shields.io/badge/Java-21-B74120)
 ![Spring Boot 3.5](https://img.shields.io/badge/Spring%20Boot-3.5-6DB33F)

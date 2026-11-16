@@ -1,1 +1,3 @@
 docs/api/openapi-v1.yaml text eol=lf
+packages/api-contract/typescript/src/** linguist-generated
+admin-web/src/contract.ts linguist-generated

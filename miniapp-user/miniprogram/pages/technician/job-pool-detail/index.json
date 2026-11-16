@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "接单详情",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#F5F6F8",
+  "usingComponents": {
+    "van-icon": "@vant/weapp/icon/index",
+    "tech-state": "/components/tech-state/index"
+  }
+}

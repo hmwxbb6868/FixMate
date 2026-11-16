@@ -1,0 +1,11 @@
+{
+  "navigationBarTitleText": "填写服务记录",
+  "navigationBarBackgroundColor": "#F5F6F8",
+  "backgroundColor": "#F5F6F8",
+  "enablePullDownRefresh": false,
+  "usingComponents": {
+    "van-icon": "@vant/weapp/icon/index",
+    "van-loading": "@vant/weapp/loading/index",
+    "tech-state": "/components/tech-state/index"
+  }
+}

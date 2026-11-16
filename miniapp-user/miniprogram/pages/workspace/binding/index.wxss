@@ -1,0 +1,2 @@
+@import "../../../styles/technician.wxss";
+.binding-brand{text-align:center;padding:26rpx 0 38rpx;}.binding-brand__icon{height:140rpx;width:140rpx;border-radius:44rpx;background:#FFF0E7;color:#D58A5D;margin:0 auto 26rpx;display:flex;align-items:center;justify-content:center;}.binding-brand .tech-title{font-size:40rpx;}

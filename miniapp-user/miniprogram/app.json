@@ -1,0 +1,62 @@
+{
+  "pages": [
+    "pages/repair/new/index",
+    "pages/triage/index",
+    "pages/work-order/detail/index",
+    "pages/repair/records/index",
+    "pages/repair/record-detail/index",
+    "pages/workspace/me/index",
+    "pages/technician/workbench/index",
+    "pages/technician/work-orders/index",
+    "pages/technician/task/index",
+    "pages/technician/participation/index",
+    "pages/technician/service-record/index",
+    "pages/technician/quotes/index",
+    "pages/technician/quote-edit/index",
+    "pages/workspace/binding/index",
+    "pages/staff/bind/index",
+    "pages/technician/schedule/index",
+    "pages/technician/catalog/index",
+    "pages/technician/job-pool/index",
+    "pages/technician/job-pool-detail/index",
+    "pages/repair/visit-slot/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "安心修",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F5F6F8",
+    "backgroundTextStyle": "dark"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents",
+  "tabBar": {
+    "custom": true,
+    "color": "#5B6673",
+    "selectedColor": "#BC431A",
+    "backgroundColor": "#FFFFFF",
+    "list": [
+      {
+        "pagePath": "pages/repair/new/index",
+        "text": "发起报修"
+      },
+      {
+        "pagePath": "pages/repair/records/index",
+        "text": "报修记录"
+      },
+      {
+        "pagePath": "pages/workspace/me/index",
+        "text": "我的"
+      },
+      {
+        "pagePath": "pages/technician/workbench/index",
+        "text": "工作台"
+      },
+      {
+        "pagePath": "pages/technician/work-orders/index",
+        "text": "我的工单"
+      }
+    ]
+  }
+}

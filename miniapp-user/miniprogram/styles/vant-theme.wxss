@@ -1,0 +1,48 @@
+/**
+ * Vant Weapp 主题变量：把组件默认色值映射到本项目的 Token。
+ * 只覆盖变量，不改组件结构。
+ */
+page {
+  /* Button */
+  --button-primary-background-color: var(--fm-action);
+  --button-primary-border-color: var(--fm-action);
+  --button-primary-color: #FFFFFF;
+  --button-default-height: 48px;
+  --button-large-height: 48px;
+  --button-default-font-size: 15px;
+  --button-normal-font-size: 15px;
+  --button-large-font-size: 15px;
+  --button-border-radius: 9px;
+  --button-default-color: var(--fm-text-secondary);
+  --button-default-border-color: var(--fm-border);
+  --button-plain-background-color: #FFFFFF;
+
+  /* Cell / Field */
+  --cell-font-size: 15px;
+  --cell-text-color: var(--fm-text-primary);
+  --cell-value-color: var(--fm-text-primary);
+  --cell-label-color: var(--fm-text-secondary);
+  --cell-vertical-padding: 14px;
+  --cell-horizontal-padding: 0;
+  --cell-line-height: 24px;
+  --field-input-text-color: var(--fm-text-primary);
+  --field-label-color: var(--fm-text-secondary);
+  --field-placeholder-text-color: var(--fm-text-tertiary);
+  --field-error-message-color: var(--fm-danger);
+
+  /* Uploader */
+  --uploader-size: 62px;
+  --uploader-upload-background-color: var(--fm-bg-subtle);
+  --uploader-icon-color: var(--fm-text-secondary);
+  --uploader-icon-size: 18px;
+  --uploader-mask-background-color: rgba(23, 32, 43, 0.45);
+  --uploader-delete-background-color: rgba(23, 32, 43, 0.55);
+
+  /* Popup / Picker / Dialog / Toast */
+  --popup-background-color: #FFFFFF;
+  --picker-toolbar-height: 52px;
+  --dialog-border-radius: 16px;
+  --dialog-confirm-button-text-color: var(--fm-action);
+  --picker-confirm-action-color: var(--fm-action);
+  --toast-font-size: 14px;
+}

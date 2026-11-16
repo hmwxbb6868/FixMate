@@ -1,0 +1,7 @@
+<view class="task-card" bindtap="onOpen" aria-role="button" aria-label="{{task.title}}，{{task.stateText}}，查看任务">
+  <view class="task-top"><view class="task-device"><view class="device-icon"><van-icon name="service-o" size="24px" /></view><view><view class="task-title">{{task.title}}维修</view><view class="task-no">{{task.workOrderNo}}</view></view></view><text class="task-status task-status--{{task.tone}}">{{task.stateText}}</text></view>
+  <view class="task-symptom">{{task.symptomSummary}}</view>
+  <view wx:if="{{task.riskFlag}}" class="task-risk"><van-icon name="warning-o" /> 安全事项待平台核实</view>
+  <view class="task-meta"><van-icon name="location-o" size="14px" /><text>{{task.areaText}}</text></view>
+  <view class="task-foot"><view class="task-meta task-meta--time"><van-icon name="clock-o" size="14px" /><text>{{task.appointmentText}}</text></view><view class="task-action">{{task.buttonText}} <van-icon name="arrow" size="12px" /></view></view>
+</view>

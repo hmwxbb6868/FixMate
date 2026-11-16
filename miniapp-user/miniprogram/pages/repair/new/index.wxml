@@ -1,0 +1,262 @@
+<view class="page {{!blocked ? 'page--tab' : ''}} {{!blocked && !submitted && !pendingSubmit ? 'page--form-flow' : ''}}">
+
+  <view wx:if="{{loading}}" class="state">
+    <van-loading color="#BC431A" size="22px">正在加载报修信息…</van-loading>
+  </view>
+
+  <view wx:elif="{{loadError}}" class="state">
+    <view class="state__text">{{loadError}}</view>
+    <van-button type="primary" size="large" custom-class="state__btn" bind:click="bootstrap">重试</van-button>
+  </view>
+
+  <!-- 命中硬规则：原申请不可继续；返回箭头只退出到空白首页，安全工单保留 -->
+  <block wx:elif="{{blocked}}">
+    <view class="safety-back" bindtap="onExitSafety" aria-role="button" aria-label="返回首页"><van-icon name="arrow-left" size="20px" /><text>返回首页</text></view>
+    <view class="alert">
+      <view class="alert__tag">已转人工处理</view>
+      <view class="alert__title">请先停止使用该设备</view>
+      <view class="alert__lead">系统检测到以下情况，已创建紧急工单，维修人员会尽快与您联系。</view>
+      <view class="alert__rule" wx:for="{{blocked.matchedRules}}" wx:key="ruleCode">
+        <view class="alert__rule-title">{{item.title}}</view>
+        <view class="alert__rule-text">{{item.templateText}}</view>
+      </view>
+      <view class="alert__no">
+        <text>紧急工单号</text>
+        <text class="alert__no-value">{{blocked.emergencyWorkOrderNo}}</text>
+      </view>
+    </view>
+    <view class="sec">
+      <view class="sec__label">说明</view>
+      <view class="row">
+        <text class="row__k">处理方式</text>
+        <text class="row__v">由人工联系确认</text>
+      </view>
+      <view class="row">
+        <text class="row__k">本页操作</text>
+        <text class="row__v">不可继续普通报修流程</text>
+      </view>
+    </view>
+    <view class="actionbar">
+      <van-button size="large" plain custom-class="btn-ghost" bind:click="onContactHuman">联系人工</van-button>
+      <van-button type="primary" size="large" custom-class="btn-main" bind:click="onViewWorkOrder">查看工单</van-button>
+    </view>
+  </block>
+
+  <!-- 提交成功 -->
+  <block wx:elif="{{submitted}}">
+    <view class="head">
+      <view class="head__eyebrow">报修已提交</view>
+      <view class="head__title">{{submitted.repairNo}}</view>
+      <view class="head__sub">请记录报修编号，后续进度可在工单中查看</view>
+    </view>
+    <view class="sec sec--first">
+      <view class="sec__label">当前状态</view>
+      <van-cell title="状态" value="已提交，等待平台受理" custom-class="fm-cell" title-class="fm-cell__title" value-class="fm-cell__value" border="{{false}}" />
+      <van-cell title="设备" value="{{applianceTypeText}}" custom-class="fm-cell" title-class="fm-cell__title" value-class="fm-cell__value" border="{{false}}" />
+      <van-cell title="型号" value="{{submitted.modelCode || submitted.modelText || '未填写'}}" custom-class="fm-cell" title-class="fm-cell__title" value-class="fm-cell__value" border="{{false}}" />
+    </view>
+    <view class="sec">
+      <view class="sec__label">下一步</view>
+      <view class="hint-block">信息采集功能将在后续阶段启用。届时可在此继续补充故障细节并确认信息。</view>
+      <view wx:if="{{canCancelSubmitted}}" class="cancel-link" bindtap="onCancelRepair">取消本次报修</view>
+    </view>
+    <view class="actionbar">
+      <van-button size="large" plain custom-class="btn-ghost" bind:click="onStartOver">再次报修</van-button>
+      <van-button wx:if="{{submitted.workOrderId}}" type="primary" size="large" custom-class="btn-main"
+                  bind:click="onViewWorkOrder">查看工单</van-button>
+    </view>
+  </block>
+
+  <!-- 未决提交只允许恢复原动作，避免编辑内容被旧提交覆盖。 -->
+  <block wx:elif="{{pendingSubmit}}">
+    <view class="head">
+      <view class="head__title">正在确认提交结果</view>
+      <view class="head__sub">重试将恢复上次提交的内容，不会新建报修。结果确认前暂不能修改。</view>
+    </view>
+    <view class="sec">
+      <view class="hint-block">{{submitError || '请等待提交结果，或点击下方按钮继续确认。'}}</view>
+    </view>
+    <view class="actionbar">
+      <van-button type="primary" size="large" loading="{{submitting}}" disabled="{{submitting}}"
+                  custom-class="btn-main" bind:click="onSubmit">重试提交</van-button>
+    </view>
+  </block>
+
+  <!-- 表单 -->
+  <block wx:else>
+    <view class="head">
+      <view class="head__eyebrow">报修 · 第 1 步</view>
+      <view class="head__title">描述设备故障</view>
+      <view class="head__sub">提交前会先做一次安全筛查，命中后转人工处理</view>
+    </view>
+
+    <view wx:if="{{draftPrompt}}" class="draft-banner">
+      <view class="draft-banner__text">检测到未提交的草稿</view>
+      <view class="draft-banner__actions">
+        <text class="draft-banner__link" bindtap="onDiscardDraft">重新填写</text>
+        <text class="draft-banner__btn" bindtap="onContinueDraft">继续填写</text>
+      </view>
+    </view>
+
+    <view wx:if="{{submitError}}" class="notice notice--error">{{submitError}}</view>
+
+    <view class="sec sec--first">
+      <view class="sec__label">设备</view>
+      <van-cell title="设备类型" value="{{applianceTypeText || '请选择'}}" is-link
+                data-kind="type" bind:click="onOpenPicker" custom-class="fm-cell" title-class="fm-cell__title" value-class="fm-cell__value" border="{{false}}" />
+      <view wx:if="{{errors.applianceType}}" class="field-error">{{errors.applianceType}}</view>
+
+      <van-cell title="品牌" value="{{brandText || '请选择'}}" is-link
+                data-kind="brand" bind:click="onOpenPicker" custom-class="fm-cell" title-class="fm-cell__title" value-class="fm-cell__value" border="{{false}}" />
+      <view wx:if="{{errors.brand}}" class="field-error">{{errors.brand}}</view>
+
+      <van-cell title="型号" value="{{modelTextDisplay || '请选择'}}" is-link
+                data-kind="model" bind:click="onOpenPicker" custom-class="fm-cell" title-class="fm-cell__title" value-class="fm-cell__value" border="{{false}}" />
+      <view wx:if="{{errors.model}}" class="field-error">{{errors.model}}</view>
+
+      <van-field wx:if="{{useModelText}}" label="型号文本" value="{{modelText}}" placeholder="例如 KFR-35GW/JSD-AP"
+                 input-align="right" maxlength="128" border="{{false}}" bind:change="onModelText"
+                 custom-class="fm-field" label-class="fm-field__label" input-class="fm-field__input" />
+
+      <van-field label="序列号" value="{{serialNumber}}" placeholder="选填" input-align="right" maxlength="64"
+                 border="{{false}}" bind:change="onSerialNumber" custom-class="fm-field" label-class="fm-field__label" input-class="fm-field__input" />
+    </view>
+
+    <view class="sec">
+      <view class="sec__label">故障 <text class="sec__hint">必填</text></view>
+      <van-field type="textarea" value="{{symptom}}" placeholder="描述现象、持续时间和使用环境" maxlength="1000"
+                 show-word-limit autosize border="{{false}}" bind:change="onSymptom" custom-class="fm-field" label-class="fm-field__label" input-class="fm-field__input" />
+      <view wx:if="{{errors.symptom}}" class="field-error">{{errors.symptom}}</view>
+
+      <van-field label="故障码" value="{{errorCode}}" placeholder="选填，例如 E4" input-align="right" maxlength="64"
+                 border="{{false}}" bind:change="onErrorCode" custom-class="fm-field" label-class="fm-field__label" input-class="fm-field__input" />
+
+      <picker mode="date" value="{{occurredDate}}" bindchange="onDateChange">
+        <van-cell title="发生日期" value="{{occurredDate || '选填'}}" is-link custom-class="fm-cell" title-class="fm-cell__title" value-class="fm-cell__value" border="{{false}}" />
+      </picker>
+      <picker mode="time" value="{{occurredTime}}" bindchange="onTimeChange">
+        <van-cell title="发生时间" value="{{occurredTime || '选填'}}" is-link custom-class="fm-cell" title-class="fm-cell__title" value-class="fm-cell__value" border="{{false}}" />
+      </picker>
+    </view>
+
+    <view class="sec">
+      <view class="sec__label">照片 <text class="sec__hint">{{media.length}} / 6</text></view>
+      <view class="uploader">
+        <van-uploader file-list="{{uploaderFiles}}" max-count="6" deletable preview-size="62px"
+                      upload-text="" bind:after-read="onAfterRead" bind:delete="onDeleteMedia" />
+      </view>
+      <block wx:for="{{media}}" wx:key="taskId">
+      <view wx:if="{{item.error}}" class="notice notice--error">
+        <view>第 {{index + 1}} 张：{{item.error}}</view>
+        <van-button size="small" plain data-task="{{item.taskId}}" bind:click="onRetryMedia"
+                    loading="{{item.uploading}}" disabled="{{item.uploading}}">重试这张照片</van-button>
+      </view>
+      </block>
+    </view>
+
+    <view class="sec">
+      <view class="sec__label">安全确认 <text class="sec__hint">五项必答</text></view>
+      <view class="qa" wx:for="{{safetyRows}}" wx:key="key">
+        <view class="qa__label">{{item.label}}</view>
+        <view class="seg">
+          <view class="seg__item {{item.value === 'no' ? 'seg__item--on' : ''}}"
+                hover-class="seg__item--hover" data-key="{{item.key}}" data-value="no" bindtap="onAnswer">
+            <van-icon wx:if="{{item.value === 'no'}}" name="success" size="14px" color="#BC431A" />
+            <text class="seg__text">否</text>
+          </view>
+          <view class="seg__item {{item.value === 'yes' ? 'seg__item--on' : ''}}"
+                hover-class="seg__item--hover" data-key="{{item.key}}" data-value="yes" bindtap="onAnswer">
+            <van-icon wx:if="{{item.value === 'yes'}}" name="success" size="14px" color="#BC431A" />
+            <text class="seg__text">是</text>
+          </view>
+        </view>
+      </view>
+      <view wx:if="{{errors.safety}}" class="field-error">{{errors.safety}}</view>
+    </view>
+
+    <view class="sec">
+      <view class="sec__label">服务地址</view>
+      <van-cell wx:if="{{addressOptions.length}}" title="选择地址" value="{{addressDisplay}}" is-link
+                data-kind="address" bind:click="onOpenPicker" custom-class="fm-cell" title-class="fm-cell__title" value-class="fm-cell__value" border="{{false}}" />
+
+      <view class="row" wx:if="{{!addressFormOpen}}" bindtap="onOpenAddressForm">
+        <text class="row__k">{{addressOptions.length ? '需要其它地址' : '还没有服务地址'}}</text>
+        <view class="row__pair">
+          <text class="row__v row__v--link">新增地址</text>
+          <view class="row__chev"></view>
+        </view>
+      </view>
+
+      <view wx:if="{{addressFormOpen}}" class="addr-form">
+        <view class="addr-form__contacts">
+          <view class="addr-form__field">
+            <label class="addr-form__label" for="repair-address-name">联系人</label>
+            <input id="repair-address-name" class="addr-form__input" value="{{addressForm.contactName}}" placeholder="填写姓名"
+                   placeholder-class="addr-form__placeholder" maxlength="32" data-field="contactName" bindinput="onAddressField" disabled="{{addressSaving}}" />
+          </view>
+          <view class="addr-form__field">
+            <label class="addr-form__label" for="repair-address-phone">手机号</label>
+            <input id="repair-address-phone" class="addr-form__input" value="{{addressForm.contactPhone}}" placeholder="11 位手机号"
+                   placeholder-class="addr-form__placeholder" type="number" maxlength="11" data-field="contactPhone" bindinput="onAddressField" disabled="{{addressSaving}}" />
+          </view>
+        </view>
+        <view class="addr-form__region">
+          <view class="addr-form__field">
+            <label class="addr-form__label" for="repair-address-province">省份</label>
+            <input id="repair-address-province" class="addr-form__input" value="{{addressForm.province}}" placeholder="如广东省"
+                   placeholder-class="addr-form__placeholder" maxlength="32" data-field="province" bindinput="onAddressField" disabled="{{addressSaving}}" />
+          </view>
+          <view class="addr-form__field">
+            <label class="addr-form__label" for="repair-address-city">城市</label>
+            <input id="repair-address-city" class="addr-form__input" value="{{addressForm.city}}" placeholder="如汕尾市"
+                   placeholder-class="addr-form__placeholder" maxlength="32" data-field="city" bindinput="onAddressField" disabled="{{addressSaving}}" />
+          </view>
+          <view class="addr-form__field">
+            <label class="addr-form__label" for="repair-address-district">区县</label>
+            <input id="repair-address-district" class="addr-form__input" value="{{addressForm.district}}" placeholder="如城区"
+                   placeholder-class="addr-form__placeholder" maxlength="32" data-field="district" bindinput="onAddressField" disabled="{{addressSaving}}" />
+          </view>
+        </view>
+        <view class="addr-form__field">
+          <label class="addr-form__label" for="repair-address-detail">详细地址</label>
+          <textarea id="repair-address-detail" class="addr-form__input addr-form__input--detail" value="{{addressForm.detail}}"
+                    placeholder="街道、小区、楼栋及门牌号" placeholder-class="addr-form__placeholder" auto-height="{{true}}"
+                    disable-default-padding="{{true}}" maxlength="200" data-field="detail" bindinput="onAddressField" disabled="{{addressSaving}}" />
+        </view>
+        <view wx:if="{{addressError || errors.address}}" class="field-error addr-form__error">{{addressError || '请先保存服务地址'}}</view>
+        <view class="addr-form__actions">
+          <button class="addr-form__button" hover-class="addr-form__button--pressed" disabled="{{addressSaving}}" bindtap="onCloseAddressForm">取消</button>
+          <button class="addr-form__button addr-form__button--primary" hover-class="addr-form__button--pressed"
+                  loading="{{addressSaving}}" disabled="{{addressSaving}}" bindtap="onSaveAddress">{{addressSaving ? '保存中' : '保存地址'}}</button>
+        </view>
+      </view>
+
+      <view wx:if="{{errors.address && !addressFormOpen}}" class="field-error">{{errors.address}}</view>
+    </view>
+
+    <view class="footnote">提交即表示您同意平台按上述信息安排上门服务</view>
+    <view class="footnote footnote--fee">上门检测前取消免费。师傅开始检测后，在接受维修报价前取消，仅需支付上门费 50 元。</view>
+    <view wx:if="{{canCancelDraft}}" class="cancel-link" bindtap="onCancelRepair">取消本次报修</view>
+
+    <view class="actionbar actionbar--flow">
+      <van-button size="large" plain loading="{{saving}}" disabled="{{saving || submitting}}" custom-class="btn-ghost"
+                  bind:click="onSaveDraft">保存草稿</van-button>
+      <van-button type="primary" size="large" loading="{{submitting}}" disabled="{{saving || submitting}}" custom-class="btn-main"
+                  bind:click="onSubmit">{{pendingSubmit ? '重试提交' : '提交报修'}}</van-button>
+    </view>
+    <view wx:if="{{savedHint}}" class="saved-hint">{{savedHint}}</view>
+  </block>
+
+  <van-popup show="{{pickerShow}}" position="bottom" round bind:close="onPickerClose">
+    <van-picker show-toolbar title="{{pickerTitle}}" columns="{{pickerColumns}}" default-index="{{pickerIndex}}"
+                bind:confirm="onPickerConfirm" bind:cancel="onPickerClose" />
+  </van-popup>
+
+  <van-dialog title="取消本次报修？" show="{{cancelVisible}}" show-cancel-button
+              message="取消后将不再处理这条报修，已填写的内容不会保留。"
+              confirm-button-text="确认取消" cancel-button-text="再想想"
+              bind:confirm="onCancelConfirm" bind:cancel="onCancelCancel" bind:close="onCancelCancel" />
+
+  <van-toast id="van-toast" />
+
+</view>

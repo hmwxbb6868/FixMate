@@ -1,0 +1,54 @@
+<view class="tech-page tech-page--detail">
+ <tech-state wx:if="{{loading}}" loading description="正在核对任务权限与最新安排" />
+ <tech-state wx:elif="{{error}}" error title="当前任务暂不可用" description="{{error}}" action="重新读取" bind:retry="load" />
+ <block wx:elif="{{task}}">
+  <view class="task-hero"><view class="tech-summary-bar"><view class="task-hero__eyebrow">安心修 · 服务任务</view><text class="tech-tag tech-tag--{{task.tone==='orange'?'orange':task.tone}}">{{task.stateText}}</text></view><view class="task-hero__title">{{task.title}}维修</view><view class="task-hero__no">{{task.workOrderNo}}</view><view class="task-hero__hint">{{task.reworkVisit && canAccept ? '请核对客户反馈和本次返修时段，再确认接单。' : hint}}</view></view>
+  <view wx:if="{{task.riskFlag}}" class="tech-notice"><van-icon name="warning-o" /><text>安全事项正在由平台核实，未解除前不可开始作业。</text></view>
+  <view wx:if="{{task.requoteRequested}}" class="tech-notice"><van-icon name="info-o" /><text>客户对报价不满意，平台已要求重新报价。请核对项目和金额后重新提交。</text></view>
+  <view wx:elif="{{task.status==='WAITING_MANUAL_REVIEW'&&(detail.coordinationCause==='ADDITIONAL_QUOTE_REJECTED'||detail.coordinationCause==='INITIAL_QUOTE_REJECTED')}}" class="tech-notice"><van-icon name="info-o" /><text>客户已拒绝报价。请等待平台协调，维修和完工暂时暂停。</text></view>
+  <view wx:if="{{task.reworkVisit}}" class="tech-notice tech-notice--blue"><van-icon name="calendar-o" /><text>这是原工单的返修。检测和原维修范围免费，新增配件或材料需客户确认报价。时段不合适时，请与客户沟通，由客户调整。</text></view>
+  <view wx:if="{{scopeError}}" class="tech-notice tech-notice--blue">{{scopeError}}</view>
+  <view wx:if="{{pendingLabel}}" class="tech-notice"><van-icon name="clock-o" /><text>“{{pendingLabel}}”结果待确认，请先恢复原操作。</text></view>
+  <view class="tech-tabs"><view class="tech-tab {{tab==='INFO'?'tech-tab--active':''}}" data-tab="INFO" bindtap="onTab">任务信息</view><view wx:if="{{detail}}" class="tech-tab {{tab==='RECORDS'?'tech-tab--active':''}}" data-tab="RECORDS" bindtap="onTab">服务记录 <text class="tech-caption">{{records.length}}</text></view></view>
+  <block wx:if="{{tab==='INFO'||!detail}}">
+   <view wx:if="{{task.reworkVisit}}" class="tech-card">
+    <view class="tech-card__title"><van-icon name="description" color="#D34B18" />返修原因与上次服务</view>
+    <block wx:if="{{task.reworkSummary}}">
+     <view class="tech-row__label">客户反馈</view>
+     <view class="tech-text">{{task.reworkSummary.issueReason || '暂无文字说明'}}</view>
+     <view wx:if="{{task.reworkSummary.issueTime}}" class="tech-row"><text class="tech-row__label">反馈时间</text><text class="tech-row__value">{{task.reworkSummary.issueTime}}</text></view>
+     <view class="tech-row"><text class="tech-row__label">原报修故障</text><text class="tech-row__value">{{task.reworkSummary.originalFault || '暂无故障摘要'}}</text></view>
+     <view class="tech-row"><text class="tech-row__label">上次预约时段</text><text class="tech-row__value">{{task.reworkSummary.previousVisitTime || '暂无时段记录'}}</text></view>
+     <view wx:if="{{task.reworkSummary.previousCompletedTime}}" class="tech-row"><text class="tech-row__label">上次完工</text><text class="tech-row__value">{{task.reworkSummary.previousCompletedTime}}</text></view>
+     <view wx:if="{{task.reworkSummary.previousRepairSummary}}" class="tech-row"><text class="tech-row__label">上次维修摘要</text><text class="tech-row__value">{{task.reworkSummary.previousRepairSummary}}</text></view>
+    </block>
+    <view wx:else class="tech-muted">暂无可显示的上一轮服务摘要。</view>
+   </view>
+   <view wx:else class="tech-card"><view class="tech-card__title"><van-icon name="description" color="#D34B18" />故障描述</view><view class="tech-text">{{detail ? detail.workOrder.symptomDescription : task.symptomSummary}}</view><view wx:if="{{detail.workOrder.errorCodeText}}" class="tech-row"><text class="tech-row__label">故障码</text><text class="tech-row__value">{{detail.workOrder.errorCodeText}}</text></view><view class="tech-gallery" wx:if="{{detail.workOrder.mediaFiles.length}}"><image wx:for="{{detail.workOrder.mediaFiles}}" wx:key="id" class="tech-photo" src="{{item.url}}" mode="aspectFill" data-index="{{index}}" bindtap="onPreview" binderror="onPhotoError" /></view><button wx:if="{{photoError}}" class="tech-link" bindtap="load">照片链接暂不可用，轻触重新读取</button></view>
+   <view class="tech-card"><view class="tech-card__title"><van-icon name="calendar-o" color="#D34B18" />{{task.reworkVisit?'本次返修安排':'上门安排'}}</view><view class="tech-row"><text class="tech-row__label">{{detail.workOrder.appointment.status==='RESCHEDULE_REQUESTED'?'申请改约时段':detail.workOrder.appointment?'上门时段':'期望时段'}}</text><text class="tech-row__value">{{detail ? appointmentText : task.appointmentText}}</text></view><view class="tech-row"><text class="tech-row__label">服务区域</text><text class="tech-row__value">{{task.areaText}}</text></view><view wx:if="{{detail.workOrder.appointment.note}}" class="tech-row"><text class="tech-row__label">预约备注</text><text class="tech-row__value">{{detail.workOrder.appointment.note}}</text></view></view>
+   <view wx:if="{{detail.serviceContact.contactName||detail.serviceContact.contactPhone||detail.serviceContact.addressText}}" class="tech-card"><view class="tech-card__title"><van-icon name="user-o" color="#D34B18" />服务联系 <text class="task-private">仅当前任务可见</text></view><view class="tech-row"><text class="tech-row__label">联系人</text><text class="tech-row__value">{{detail.serviceContact.contactName||'待核实'}}</text></view><view class="tech-row contact-phone-row"><text class="tech-row__label">联系电话</text><view class="contact-phone-value"><text class="contact-phone-number">{{detail.serviceContact.contactPhone||'待核实'}}</text><button wx:if="{{detail.serviceContact.contactPhone}}" class="task-call" bindtap="onCall" aria-label="拨打客户电话"><van-icon name="phone-o" size="19px" /></button></view></view><view class="tech-row"><text class="tech-row__label">上门地址</text><text class="tech-row__value">{{detail.serviceContact.addressText||'待核实'}}</text></view></view>
+   <view wx:elif="{{detail}}" class="tech-notice tech-notice--blue"><van-icon name="shield-o" /><text>服务联系信息尚未确认，请等待平台核实后再上门。</text></view>
+   <view wx:else class="task-privacy"><van-icon name="shield-o" /> {{task.assignment.status==='PENDING'?'接单前仅展示任务摘要，保护客户隐私。':'当前仅展示任务摘要，客户资料不对外开放。'}}</view>
+   <view wx:if="{{detail}}" class="tech-card quote-entry" bindtap="onQuotes"><view class="quote-entry__icon"><van-icon name="balance-list-o" size="25px" /></view><view class="quote-entry__body"><view class="quote-entry__title">报价与确认范围</view><view class="tech-muted">查看平台计算金额、报价版本和审批进度</view></view><van-icon name="arrow" size="14px" color="#9AA2AE" /></view>
+   <button wx:if="{{task.reworkVisit&&task.status==='IN_REPAIR'&&canQuote&&!pendingLabel}}" class="tech-btn tech-btn--soft" bindtap="onNewQuote">追加配件或材料报价</button>
+   <button wx:if="{{canReturn&&!pendingLabel}}" class="task-return" data-action="return-request" bindtap="onAction">申请退回，由平台协调</button>
+   <button wx:if="{{scopeError||task.assignment.status==='RETURN_REQUESTED'}}" class="tech-link" bindtap="onParticipation">查看本人参与摘要 <van-icon name="arrow" size="12px" /></button>
+  </block>
+  <block wx:else><view class="tech-card"><view class="tech-card__title">服务过程</view><button wx:if="{{canInspection&&!pendingLabel}}" class="tech-link" data-kind="INSPECTION" bindtap="onRecord">补充或修正检测记录</button><button wx:if="{{canRepair&&!pendingLabel}}" class="tech-link" data-kind="REPAIR" bindtap="onRecord">追加维修记录</button><view wx:if="{{!records.length}}" class="tech-muted">暂无已提交记录。现场检测和维修情况将在提交后保留。</view><view wx:for="{{records}}" wx:key="id" class="tech-record"><view class="tech-record__time">{{item.time}}</view><view class="tech-record__title">{{item.title}} <text wx:if="{{item.correction}}" class="tech-tag tech-tag--muted">修正记录</text></view><view class="tech-record__body">{{item.summary}}</view><view class="record-facts">{{item.facts}}</view></view></view></block>
+ </block>
+ <view wx:if="{{commandError}}" class="tech-form-error">{{commandError}}</view>
+ <view class="tech-dock" wx:if="{{!loading&&(task||error)}}">
+  <block wx:if="{{pendingLabel}}"><button class="tech-btn tech-btn--primary" loading="{{busy}}" disabled="{{busy}}" bindtap="onRetry">恢复“{{pendingLabel}}”结果</button></block>
+  <view wx:elif="{{canAccept||canDecline}}" class="tech-buttons">
+   <button wx:if="{{canDecline}}" class="tech-btn tech-btn--outline" disabled="{{busy}}" data-action="decline" bindtap="onAction">拒绝派单</button>
+   <button class="tech-btn tech-btn--primary" loading="{{busy&&canAccept}}" disabled="{{busy||!canAccept}}" data-action="accept" bindtap="onAction">接受派单</button>
+  </view>
+  <view wx:elif="{{canDeclineReschedule || (canConfirmVisit && task.rescheduleVisit)}}" class="tech-buttons">
+   <button wx:if="{{canDeclineReschedule}}" class="tech-btn tech-btn--outline" data-action="decline-reschedule" bindtap="onAction" disabled="{{busy}}">拒绝新时段</button>
+   <button wx:if="{{canConfirmVisit}}" class="tech-btn tech-btn--primary" data-action="confirm-visit" bindtap="onAction" loading="{{busy}}" disabled="{{busy}}">接受新时段</button>
+  </view>
+  <button wx:elif="{{canConfirmVisit}}" class="tech-btn tech-btn--primary" data-action="confirm-visit" bindtap="onAction" loading="{{busy}}" disabled="{{busy}}">确认上门时段</button>
+  <view wx:elif="{{canStart||canInspection||canRepair||canQuote||canComplete}}" class="tech-buttons"><button wx:if="{{canStart}}" class="tech-btn tech-btn--primary" data-action="start-inspection" bindtap="onAction" disabled="{{busy}}">开始现场检测</button><button wx:elif="{{canQuote&&task.status!=='IN_REPAIR'}}" class="tech-btn tech-btn--primary" bindtap="onNewQuote">{{task.requoteRequested?'重新报价':'填写报价'}}</button><button wx:elif="{{canInspection}}" class="tech-btn tech-btn--primary" data-kind="INSPECTION" bindtap="onRecord">填写检测记录</button><button wx:elif="{{canRepair}}" class="tech-btn tech-btn--soft" data-kind="REPAIR" bindtap="onRecord">记录维修过程</button><button wx:if="{{canComplete}}" class="tech-btn tech-btn--primary" data-action="completion" bindtap="onAction" disabled="{{busy}}">提交完工</button></view>
+  <button wx:else class="tech-btn tech-btn--outline" bindtap="onBack">返回我的任务</button>
+ </view>
+</view>

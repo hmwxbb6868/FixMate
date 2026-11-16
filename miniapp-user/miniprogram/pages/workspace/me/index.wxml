@@ -1,0 +1,57 @@
+<view wx:if="{{workspaceMode==='TECHNICIAN'&&workspace}}" class="tech-page tech-profile">
+ <view class="tech-head"><view><view class="tech-title">我的</view></view><text class="tech-tag tech-tag--green">维修授权有效</text></view>
+ <view class="staff-profile-card"><view class="staff-profile-top"><view class="staff-avatar"><van-icon name="service-o" size="35px" /></view><view class="staff-profile-body"><view class="staff-name">{{workspace.staffName}}</view><view class="staff-phone">{{staffPhoneText||'联系电话待补充'}}</view><view wx:if="{{staffPhoneText}}" class="staff-phone-source">{{staffPhoneSource}}</view><view class="staff-role"><van-icon name="shield-o" size="12px" /> 安心修 · 维修人员</view></view></view><view class="staff-profile-bottom"><text>专注服务，认真交付</text></view></view>
+ <view class="staff-shortcuts"><view bindtap="onSchedule"><view class="staff-shortcut-icon"><van-icon name="calendar-o" size="25px" /></view><text>上门日程</text></view><view bindtap="onCatalog"><view class="staff-shortcut-icon staff-shortcut-icon--blue"><van-icon name="balance-list-o" size="25px" /></view><text>服务价目</text></view><view bindtap="onBinding"><view class="staff-shortcut-icon staff-shortcut-icon--green"><van-icon name="user-o" size="25px" /></view><text>身份资料</text></view></view>
+ <view class="tech-section"><view class="tech-section__title">服务流程</view><text class="tech-caption">按确认范围，安心交付</text></view><view class="tech-card"><view class="staff-process"><view><text>01</text><view>确认任务</view></view><view><text>02</text><view>现场检测</view></view><view><text>03</text><view>报价确认</view></view><view><text>04</text><view>维修交付</view></view></view><view class="staff-process-note">先核对预约，再按现场检测结果报价。客户确认后维修，完成服务记录后提交完工。</view></view>
+ <button class="staff-switch" bindtap="onSwitchWorkspace"><van-icon name="exchange" size="19px" /><text>切换至用户工作区</text><van-icon name="arrow" size="13px" /></button>
+</view>
+<block wx:else>
+<view class="records-page profile-page">
+  <view class="records-head"><view class="records-title">我的</view></view>
+  <view wx:if="{{loading}}" class="records-state"><van-loading>正在读取资料…</van-loading></view>
+  <view wx:elif="{{error}}" class="records-state">{{error}}<van-button plain bind:click="load">重新读取</van-button></view>
+  <block wx:elif="{{profile}}">
+    <view class="profile-list">
+      <view wx:if="{{editing}}" class="profile-row profile-row--avatar">
+        <view class="profile-row__label"><text>头像</text><text class="profile-row__hint">轻触更换</text></view>
+        <view class="profile-row__value">
+          <button class="profile-avatar-button" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar" disabled="{{saving || pendingSave || uploading || avatarUnresolved}}" aria-label="选择头像">
+            <image wx:if="{{(avatarPath || profile.avatarUrl) && !avatarFailed}}" class="profile-avatar" src="{{avatarPath || profile.avatarUrl}}" mode="aspectFill" binderror="onAvatarError" />
+            <view wx:else class="profile-avatar profile-avatar--default"><van-icon name="contact" size="30px" /></view>
+          </button>
+        </view>
+      </view>
+      <view wx:else class="profile-row profile-row--avatar profile-row--link" bindtap="onEdit" aria-role="button" aria-label="编辑头像">
+        <text class="profile-row__label">头像</text>
+        <view class="profile-row__value">
+          <image wx:if="{{profile.avatarUrl && !avatarFailed}}" class="profile-avatar" src="{{profile.avatarUrl}}" mode="aspectFill" binderror="onAvatarError" />
+          <view wx:else class="profile-avatar profile-avatar--default"><van-icon name="contact" size="30px" /></view>
+          <van-icon name="arrow" size="15px" color="#8D97A3" />
+        </view>
+      </view>
+      <view wx:if="{{editing}}" class="profile-row">
+        <text class="profile-row__label">昵称</text>
+        <view class="profile-row__value"><input class="profile-nickname-input" type="nickname" maxlength="64" value="{{nicknameInput}}" placeholder="请输入昵称" placeholder-class="profile-placeholder" disabled="{{saving || pendingSave}}" bindinput="onNickname" bindblur="onNickname" /></view>
+      </view>
+      <view wx:else class="profile-row profile-row--link" bindtap="onEdit" aria-role="button" aria-label="编辑昵称">
+        <text class="profile-row__label">昵称</text>
+        <view class="profile-row__value"><text class="profile-nickname {{!profile.nickname ? 'profile-placeholder' : ''}}">{{profile.nickname || '未设置'}}</text><van-icon name="arrow" size="15px" color="#8D97A3" /></view>
+      </view>
+    </view>
+    <block wx:if="{{editing}}">
+      <view wx:if="{{uploading}}" class="profile-feedback">正在上传头像…</view>
+      <view wx:if="{{uploadError}}" class="profile-feedback profile-feedback--error"><text>{{uploadError}}</text><view class="profile-upload-retry"><van-button size="small" plain bind:click="uploadAvatar" loading="{{uploading}}">重试上传</van-button></view></view>
+      <view wx:if="{{saveError}}" class="profile-feedback profile-feedback--error">{{saveError}}</view>
+      <view class="profile-actions">
+        <view wx:if="{{!pendingSave}}" class="profile-actions__cell"><van-button block size="large" plain bind:click="onCancelEdit" disabled="{{saving || uploading}}">取消</van-button></view>
+        <view class="profile-actions__cell"><van-button block size="large" type="primary" bind:click="onSave" loading="{{saving}}" disabled="{{uploading}}">{{pendingSave ? '重试保存' : '保存'}}</van-button></view>
+      </view>
+    </block>
+  </block>
+  <view wx:if="{{canSwitchWorkspace&&!editing&&!workspaceLoading}}" class="profile-workspace" bindtap="onSwitchWorkspace" aria-role="button"><view><view class="profile-workspace__title">维修工作区</view><view class="profile-workspace__hint">查看平台分派与上门任务</view></view><text>进入 <van-icon name="arrow" size="13px" /></text></view>
+  <view wx:if="{{workspace&&!editing&&!canSwitchWorkspace&&!workspaceLoading}}" class="profile-workspace" bindtap="onBinding" aria-role="button"><view><view class="profile-workspace__title">维修身份申请</view><view class="profile-workspace__hint">{{bindingStatus==='PENDING'?'等待平台核实，查看申请进度':bindingStatus?'查看本人的申请与审核结果':'收到平台邀请码后，在此提交申请'}}</view></view><van-icon name="arrow" size="13px" /></view>
+  <view wx:if="{{workspaceError}}" class="profile-feedback"><text>维修身份暂无法读取</text><van-button size="small" plain bind:click="loadWorkspace">重试</van-button></view>
+  <van-toast id="van-toast" />
+</view>
+
+</block>

@@ -1,0 +1,2 @@
+export async function confirmAction(title:string,content:string):Promise<boolean> {const result=await wx.showModal({title,content,confirmText:'确认',confirmColor:'#D34B18'});return result.confirm;}
+export async function askReason(title:string,placeholderText:string):Promise<string|null> {const result=await wx.showModal({title,editable:true,placeholderText,confirmText:'确认提交',confirmColor:'#D34B18'});if(!result.confirm)return null;const reason=(result.content||'').trim();if(reason.length<2||reason.length>1000)throw new Error('请填写2至1000个字符的真实原因');return reason;}

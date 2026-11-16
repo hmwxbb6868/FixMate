@@ -1,0 +1,5 @@
+@import "../../../styles/records.wxss";
+.filters { display:flex; gap:8rpx; padding:6rpx; margin-bottom:22rpx; border-radius:var(--fm-radius-md); background:var(--fm-bg-surface); }
+.filter { flex:1; min-width:0; text-align:center; min-height:80rpx; line-height:80rpx; border-radius:var(--fm-radius-sm); color:var(--fm-text-secondary); font-size:var(--fm-font-caption); white-space:nowrap; }
+.filter--active { color:var(--fm-action); font-weight:700; background:var(--fm-action-soft); }
+

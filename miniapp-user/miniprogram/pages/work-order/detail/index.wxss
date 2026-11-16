@@ -1,0 +1,421 @@
+/* U3 工单详情：报价账、历史、时间线等本页特有样式 */
+
+.state {
+  padding: 200rpx 40rpx;
+  text-align: center;
+}
+.state__text {
+  font-size: var(--fm-font-caption);
+  color: var(--fm-text-secondary);
+}
+.state__btn {
+  margin-top: 40rpx;
+}
+
+.order-actions {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16rpx;
+  margin:24rpx 28rpx 0;
+}
+.order-actions > van-button:only-child,
+.order-actions__wide { grid-column:1 / -1; }
+.order-actions > van-button { min-width:0; }
+.order-page { padding-bottom:calc(36rpx + env(safe-area-inset-bottom)); }
+.order-fee { background:var(--fm-hero); border:1rpx solid var(--fm-warm-line); }
+.order-fee .hint-block { color:var(--fm-warm-text); }
+
+/* 接受报价确认弹窗 */
+.accept {
+  padding: 40rpx 38rpx 32rpx;
+}
+.accept__title {
+  text-align: center;
+  font-size: 34rpx;
+  line-height: 48rpx;
+  font-weight: 600;
+  color: var(--fm-text-primary);
+}
+.accept__body {
+  max-height: 42vh;
+  margin-top: 28rpx;
+}
+.accept__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 16rpx 0;
+  font-size: 28rpx;
+  line-height: 44rpx;
+}
+.accept__k {
+  flex: 0 0 auto;
+  margin-right: 24rpx;
+  color: var(--fm-text-secondary);
+}
+.accept__n {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: right;
+  color: var(--fm-text-primary);
+  font-variant-numeric: tabular-nums;
+  word-break: break-all;
+}
+.accept__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8rpx 12rpx;
+  margin-top: 4rpx;
+  padding: 20rpx 24rpx;
+  border-top: 1rpx solid var(--fm-divider);
+  border-radius: var(--fm-radius-sm);
+  background: var(--fm-action-soft);
+}
+.accept__total-k {
+  font-size: 26rpx;
+  color: var(--fm-text-secondary);
+}
+.accept__total-n {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: var(--fm-action);
+  font-variant-numeric: tabular-nums;
+  margin-left: auto;
+  white-space: nowrap;
+}
+.accept__expiry {
+  margin-top: 20rpx;
+  font-size: 24rpx;
+  line-height: 34rpx;
+  color: var(--fm-text-tertiary);
+}
+.accept__actions {
+  display: flex;
+  gap: 22rpx;
+  margin-top: 36rpx;
+  box-sizing: border-box;
+}
+/* 等宽包装容器：按钮本体填满容器，避免原生 button 的 auto 边距与 padding 撑破弹窗 */
+.accept__action {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* 改约弹层 */
+.resched {
+  padding: 40rpx 38rpx 48rpx;
+}
+.resched__title {
+  margin-bottom: 12rpx;
+  text-align: center;
+  font-size: 34rpx;
+  line-height: 48rpx;
+  font-weight: 600;
+  color: var(--fm-text-primary);
+}
+.resched__actions {
+  display: flex;
+  gap: 22rpx;
+  margin-top: 32rpx;
+}
+.resched__action {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.head__eyebrow--mono {
+  font-family: Consolas, "Courier New", monospace;
+  letter-spacing:0;
+}
+
+/* 报价账 */
+.quote {
+  border: 1rpx solid var(--fm-border);
+  border-radius: var(--fm-radius-md);
+  overflow: hidden;
+}
+.quote__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8rpx 16rpx;
+  padding: 18rpx 22rpx;
+  background: var(--fm-bg-subtle);
+  border-bottom: 1rpx solid var(--fm-border);
+  font-size: var(--fm-font-micro);
+  color: var(--fm-text-secondary);
+}
+.quote__no {
+  font-family: Consolas, "Courier New", monospace;
+  color: var(--fm-text-primary);
+  overflow-wrap: anywhere;
+}
+.ledger {
+  padding: 8rpx 28rpx;
+}
+.ledger__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 18rpx 0;
+  border-bottom: 1rpx dashed var(--fm-divider);
+  font-size: var(--fm-font-caption);
+}
+.ledger__row:last-child {
+  border-bottom: none;
+}
+.ledger__k {
+  color: var(--fm-text-secondary);
+}
+.ledger__n {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+.ledger__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  padding: 20rpx 22rpx;
+  background: var(--fm-action-soft);
+}
+.ledger__total-k {
+  font-size: var(--fm-font-caption);
+  color: var(--fm-text-secondary);
+}
+.ledger__total-n {
+  font-size: 44rpx;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--fm-action);
+  margin-left: auto;
+  white-space: nowrap;
+}
+.items {
+  padding: 0 28rpx 16rpx;
+}
+.item {
+  display: flex;
+  justify-content: space-between;
+  gap: 20rpx;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid var(--fm-divider);
+}
+.item:last-child {
+  border-bottom: none;
+}
+.item__l {
+  min-width: 0;
+}
+.item__name {
+  font-size: var(--fm-font-caption);
+  line-height: var(--fm-line-caption);
+}
+.item__clause {
+  margin-top: 4rpx;
+  font-size: var(--fm-font-micro);
+  color: var(--fm-text-tertiary);
+  font-family: Consolas, "Courier New", monospace;
+}
+.item__note {
+  margin-top: 4rpx;
+  font-size: var(--fm-font-micro);
+  color: var(--fm-text-secondary);
+}
+.item__amount {
+  font-size: var(--fm-font-caption);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* 历史报价 */
+.history {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap:16rpx;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid var(--fm-divider);
+}
+.history:last-child {
+  border-bottom: none;
+}
+.history__no {
+  font-size: var(--fm-font-caption);
+  font-family: Consolas, "Courier New", monospace;
+  overflow-wrap:anywhere;
+}
+.history__l { min-width:0; }
+.history__meta {
+  margin-top: 4rpx;
+  font-size: var(--fm-font-micro);
+  color: var(--fm-text-tertiary);
+}
+.history__amount {
+  font-size: var(--fm-font-caption);
+  font-variant-numeric: tabular-nums;
+  color: var(--fm-text-secondary);
+  white-space:nowrap;
+}
+
+/* 服务记录 */
+.record {
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid var(--fm-divider);
+}
+.record:last-child {
+  border-bottom: none;
+}
+.record__meta {
+  font-size: var(--fm-font-micro);
+  color: var(--fm-text-tertiary);
+}
+.record__text {
+  margin-top: 8rpx;
+  font-size: var(--fm-font-caption);
+  line-height: var(--fm-line-caption);
+}
+
+/* 时间线 */
+.timeline {
+  padding: 4rpx 0 8rpx;
+}
+.timeline__node {
+  display: flex;
+  gap: 16rpx;
+  padding: 12rpx 0;
+}
+.timeline__time {
+  flex: 0 0 132rpx;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 22rpx;
+  line-height: 30rpx;
+  color: var(--fm-text-tertiary);
+  padding-top: 4rpx;
+  white-space: nowrap;
+}
+.timeline__body {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-left: 24rpx;
+  word-break: break-word;
+}
+.timeline__body::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 10rpx;
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  background: #C3CAD3;
+}
+.timeline__node:not(:last-child) .timeline__body::after {
+  content:'';
+  position:absolute;
+  left:4rpx;
+  top:26rpx;
+  bottom:-30rpx;
+  width:2rpx;
+  background:var(--fm-border);
+}
+.timeline__node--current .timeline__body::before {
+  background: var(--fm-action);
+  box-shadow: 0 0 0 6rpx var(--fm-action-soft);
+}
+.timeline__title {
+  font-size: 28rpx;
+  line-height: 40rpx;
+  color: var(--fm-text-primary);
+}
+.timeline__node--current .timeline__title {
+  font-weight: 600;
+}
+.timeline__detail {
+  margin-top: 4rpx;
+  font-size: 24rpx;
+  line-height: 36rpx;
+  color: var(--fm-text-secondary);
+}
+
+/* 故障描述：保留用户原始换行，长文本不横向溢出 */
+.symptom {
+  padding: 20rpx 0 24rpx;
+  font-size: 30rpx;
+  line-height: 1.5;
+  color: var(--fm-text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+.symptom--empty {
+  color: var(--fm-text-tertiary);
+}
+
+/* 故障照片：三列固定高度，点击全屏预览 */
+.media__head {
+  padding: 16rpx 0 4rpx;
+  font-size: 24rpx;
+  color: var(--fm-text-tertiary);
+}
+.media {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  padding: 8rpx 0 24rpx;
+}
+.media__cell {
+  position: relative;
+  width: calc((100% - 24rpx) / 3);
+  height: 216rpx;
+  border-radius: var(--fm-radius-sm);
+  overflow: hidden;
+  background-color: var(--fm-bg-subtle);
+}
+.media__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.media__hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 4rpx 0;
+  text-align: center;
+  font-size: 20rpx;
+  color: var(--fm-text-secondary);
+  background: rgba(255, 255, 255, 0.82);
+}
+.media__hint--err {
+  color: var(--fm-danger);
+}
+.media__detail {
+  padding: 8rpx 0 16rpx;
+  font-size: 22rpx;
+  line-height: 32rpx;
+  color: var(--fm-danger);
+  word-break: break-all;
+}
+
+/* 临时构建标记：确认真机包是否更新，确认后删除 */
+.build-tag {
+  padding: 24rpx 0 40rpx;
+  text-align: center;
+  font-size: 22rpx;
+  color: #C9CFD8;
+}
+
+.hint-block {
+  padding: 24rpx 0;
+  font-size: var(--fm-font-caption);
+  line-height: var(--fm-line-caption);
+  color: var(--fm-text-secondary);
+}

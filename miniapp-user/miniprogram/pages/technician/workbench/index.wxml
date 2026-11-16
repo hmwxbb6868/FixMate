@@ -1,0 +1,18 @@
+<view class="tech-page">
+ <view class="tech-head"><view><view class="tech-title">维修工作台</view><view class="tech-subtitle">{{staffName ? staffName+'，工作顺利' : '每一次上门，都安心有序'}}</view></view><view class="tech-avatar"><van-icon name="service-o" size="30px" /></view></view>
+ <tech-state wx:if="{{loading}}" loading description="为你读取最新任务与预约" />
+ <tech-state wx:elif="{{error}}" error title="{{denied?'当前维修授权不可用':'任务暂未同步'}}" description="{{error}}" action="重新读取" bind:retry="refresh" />
+ <block wx:else>
+  <view class="desk-overview"><view class="desk-overview__top"><view><text class="desk-overview__title">今日工作，一目了然</text><view class="desk-overview__sub">{{dateText}} · {{updatedText}}</view></view><view class="desk-overview__seal"><van-icon name="shield-o" size="26px" /></view></view><view class="desk-metrics"><view class="desk-metric" data-filter="PENDING" bindtap="onList"><text class="desk-metric__number">{{pendingCount}}</text><text>待确认 <van-icon name="arrow" size="10px" /></text></view><view class="desk-metric" data-filter="ACTIVE" bindtap="onList"><text class="desk-metric__number">{{activeCount}}</text><text>进行中 <van-icon name="arrow" size="10px" /></text></view><view class="desk-metric" bindtap="onSchedule"><text class="desk-metric__number">{{todayCount}}</text><text>今日安排 <van-icon name="arrow" size="10px" /></text></view></view></view>
+  <view class="desk-pool" bindtap="onPool"><view class="desk-pool__icon"><van-icon name="orders-o" size="25px" /></view><view class="desk-pool__body"><view>接单大厅</view><text>自主选择任务 · 平台核对后发布</text></view><view class="desk-pool__go">去接单 <van-icon name="arrow" size="13px" /></view></view>
+  <view class="desk-tip"><van-icon name="info-o" size="15px" /><text>查看当前任务，合理安排上门服务。</text></view>
+  <view class="tech-section"><view class="tech-section__title">待确认派单 <text class="desk-count">{{pendingCount}}</text></view><button wx:if="{{pendingCount>3}}" class="tech-link" data-filter="PENDING" bindtap="onList">更多派单 <van-icon name="arrow" size="12px" /></button></view>
+  <tech-task-card wx:for="{{pending}}" wx:key="id" task="{{item}}" bind:open="onTask" />
+  <tech-state wx:if="{{!pending.length}}" title="暂无待确认派单" description="平台定向派给你的任务会显示在这里。\n下拉页面可刷新。" />
+  <view class="tech-section"><view class="tech-section__title">继续处理</view><button wx:if="{{ongoingCount>4}}" class="tech-link" data-filter="ALL" bindtap="onList">更多当前任务 <van-icon name="arrow" size="12px" /></button></view>
+  <tech-task-card wx:for="{{ongoing}}" wx:key="id" task="{{item}}" bind:open="onTask" />
+  <view wx:if="{{!ongoing.length}}" class="desk-clear"><van-icon name="passed" size="22px" /><view><view>当前没有进行中的任务</view><text>接单后，在这里继续检测、报价与维修。</text></view></view>
+  <view class="tech-bottom-note">专注每一次服务 · 安心修</view>
+ </block>
+ <button wx:if="{{denied}}" class="tech-btn tech-btn--outline" bindtap="onUser">返回用户工作区</button>
+</view>

@@ -1,0 +1,279 @@
+<view class="page order-page">
+
+  <view wx:if="{{loading}}" class="state">
+    <van-loading color="#BC431A" size="22px">正在加载工单…</van-loading>
+  </view>
+
+  <view wx:elif="{{loadError}}" class="state">
+    <view class="state__text">{{loadError}}</view>
+    <van-button type="primary" size="large" custom-class="state__btn" bind:click="load">重试</van-button>
+  </view>
+
+  <block wx:else>
+    <view class="head">
+      <view class="head__eyebrow head__eyebrow--mono">{{workOrderNo}}</view>
+      <view class="head__title">{{statusText}}</view>
+      <view class="head__sub">{{applianceLabel}}</view>
+    </view>
+
+    <view class="sec order-fee" wx:if="{{cancelled && cancellationFeeAmount}}">
+      <view class="sec__label">取消费用</view>
+      <view class="hint-block">本次报修已取消，仅需支付上门费 ¥{{cancellationFeeAmount}}。</view>
+    </view>
+
+    <!-- 当前报价 -->
+    <block wx:if="{{quote && !cancelled}}">
+      <view class="sec">
+        <view class="sec__label">当前报价 <text class="sec__hint">{{quoteVersionText}}</text></view>
+
+        <view class="quote">
+          <view class="quote__head">
+            <text>{{expiresText ? '有效期至 ' + expiresText : '无有效期'}}</text>
+            <text class="quote__no">{{quote.quoteNo}}</text>
+          </view>
+
+          <view class="ledger">
+            <view class="ledger__row">
+              <text class="ledger__k">此前已确认</text>
+              <text class="ledger__n">¥ {{quote.confirmedAmountBefore}}</text>
+            </view>
+            <view class="ledger__row">
+              <text class="ledger__k">{{quoteTypeText}}</text>
+              <text class="ledger__n">¥ {{quote.currentAdditionalAmount}}</text>
+            </view>
+          </view>
+
+          <view class="ledger__total">
+            <text class="ledger__total-k">确认后累计应付</text>
+            <text class="ledger__total-n">¥ {{quote.payableTotalAfterAcceptance}}</text>
+          </view>
+
+          <view class="items">
+            <view class="item" wx:for="{{items}}" wx:key="id">
+              <view class="item__l">
+                <view class="item__name">{{item.itemName}} · {{item.quantity}} {{item.unit}}</view>
+                <view class="item__clause">{{item.pricingClauseNo}} · 规则 {{item.pricingRuleVersion}}</view>
+                <view class="item__note" wx:if="{{item.additionReason}}">追加原因：{{item.additionReason}}</view>
+                <view class="item__note" wx:if="{{item.partSourceNote}}">配件来源：{{item.partSourceNote}}</view>
+              </view>
+              <text class="item__amount">¥ {{item.amount}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="sec" wx:if="{{changeReason}}">
+        <view class="sec__label">变更原因</view>
+        <view class="hint-block">{{changeReason}}</view>
+      </view>
+    </block>
+
+    <view class="sec" wx:if="{{!quote && !cancelled}}">
+      <view class="sec__label">报价</view>
+      <view class="hint-block">{{quoteEmptyHint || '现场检测完成后由维修人员提交报价，此处会显示金额明细与计价条款。'}}</view>
+    </view>
+
+    <!-- 历史报价 -->
+    <view class="sec" wx:if="{{history.length && !cancelled}}">
+      <view class="sec__label">历史报价 <text class="sec__hint">只读</text></view>
+      <view class="history" wx:for="{{history}}" wx:key="quoteNo">
+        <view class="history__l">
+          <view class="history__no">{{item.quoteNo}}</view>
+          <view class="history__meta">{{item.typeText}} · {{item.status}}</view>
+        </view>
+        <text class="history__amount">¥ {{item.total}}</text>
+      </view>
+    </view>
+
+    <!-- 预约与维修人员 -->
+    <view class="sec">
+      <view class="sec__label">服务安排</view>
+      <view class="row">
+        <text class="row__k">{{appointment.status==='RESCHEDULE_REQUESTED'?'申请改约时段':'预约时间'}}</text>
+        <text class="row__v">{{appointmentText || '未预约'}}</text>
+      </view>
+      <view class="row">
+        <text class="row__k">维修人员</text>
+        <text class="row__v">{{technicianName || '待分配'}}</text>
+      </view>
+      <view class="row">
+        <text class="row__k">联系人</text>
+        <text class="row__v">{{contactName}} · {{contactPhone}}</text>
+      </view>
+      <view class="row">
+        <text class="row__k">地址</text>
+        <text class="row__v">{{addressText}}</text>
+      </view>
+    </view>
+
+    <!-- 服务记录 -->
+    <view class="sec" wx:if="{{serviceRecords.length}}">
+      <view class="sec__label">服务记录</view>
+      <view class="record" wx:for="{{serviceRecords}}" wx:key="time">
+        <view class="record__meta">{{item.time}} · {{item.technician}}</view>
+        <view class="record__text">{{item.summary}}</view>
+      </view>
+    </view>
+
+    <!-- 验收 -->
+    <view class="sec" wx:if="{{acceptance}}">
+      <view class="sec__label">验收</view>
+      <view class="row">
+        <text class="row__k">结果</text>
+        <text class="row__v">{{acceptance.accepted ? '已确认验收' : '未通过'}}</text>
+      </view>
+      <view class="row" wx:if="{{acceptanceText}}">
+        <text class="row__k">时间</text>
+        <text class="row__v">{{acceptanceText}}</text>
+      </view>
+      <view class="row" wx:if="{{acceptance.note}}">
+        <text class="row__k">备注</text>
+        <text class="row__v">{{acceptance.note}}</text>
+      </view>
+    </view>
+
+    <!-- 时间线 -->
+    <view class="sec">
+      <view class="sec__label">进度</view>
+      <view class="timeline">
+        <view class="timeline__node {{item.current ? 'timeline__node--current' : ''}}"
+              wx:for="{{timeline}}" wx:key="time">
+          <text class="timeline__time">{{item.time}}</text>
+          <view class="timeline__body">
+            <view class="timeline__title">{{item.title}}</view>
+            <view class="timeline__detail" wx:if="{{item.detail}}">{{item.detail}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="sec" wx:if="{{supportUpdates.length}}">
+      <view class="sec__label">平台处理进度</view>
+      <view class="record" wx:for="{{supportUpdates}}" wx:key="key">
+        <view class="record__meta">{{item.time}}</view>
+        <view class="timeline__title">{{item.title}}</view>
+        <view class="record__text" wx:if="{{item.detail}}">{{item.detail}}</view>
+      </view>
+    </view>
+
+    <view class="sec">
+      <view class="sec__label">故障描述</view>
+      <view wx:if="{{symptom}}" class="symptom">{{symptom}}</view>
+      <view wx:else class="symptom symptom--empty">暂无故障描述</view>
+      <view class="row" wx:if="{{errorCodeText}}">
+        <text class="row__k">故障码</text>
+        <text class="row__v">{{errorCodeText}}</text>
+      </view>
+      <view class="row" wx:if="{{occurredAtText}}">
+        <text class="row__k">发生时间</text>
+        <text class="row__v">{{occurredAtText}}</text>
+      </view>
+      <view class="media__head" wx:if="{{mediaFiles.length}}">故障照片 · {{mediaFiles.length}} 张</view>
+      <view class="media" wx:if="{{mediaFiles.length}}">
+        <view class="media__cell" wx:for="{{mediaFiles}}" wx:key="id" data-index="{{index}}"
+              bindtap="onPreviewImage">
+          <image class="media__img" src="{{item.url}}" mode="aspectFill" data-index="{{index}}"
+                 bindload="onMediaLoad" binderror="onMediaError" />
+          <view wx:if="{{item.error}}" class="media__hint media__hint--err">加载失败</view>
+          <view wx:elif="{{!item.loaded}}" class="media__hint">加载中</view>
+        </view>
+      </view>
+      <view wx:if="{{mediaErrorDetail}}" class="media__detail">{{mediaErrorDetail}}</view>
+    </view>
+
+    <view wx:if="{{awaitingVisit || actions.length}}" class="order-actions">
+      <van-button wx:if="{{awaitingVisit}}" class="order-actions__wide" size="large" block type="primary"
+                  bind:click="onSelectContinuationVisit" disabled="{{acting}}">继续维修并选时段</van-button>
+      <van-button wx:for="{{actions}}" wx:key="action" size="large" block
+                  type="{{item.primary ? 'primary' : 'default'}}" plain="{{!item.primary}}"
+                  data-action="{{item.action}}" bind:click="onAction" disabled="{{acting}}">
+        {{item.label}}
+      </van-button>
+    </view>
+  </block>
+
+  <van-dialog use-slot show="{{acceptVisible}}" width="686rpx" show-confirm-button="{{false}}"
+              show-cancel-button="{{false}}" close-on-click-overlay="{{false}}"
+              custom-class="accept-dialog" bind:close="onAcceptCancel">
+    <view class="accept">
+      <view class="accept__title">确认接受报价</view>
+
+      <scroll-view scroll-y class="accept__body">
+        <view class="accept__ledger">
+          <view class="accept__row">
+            <text class="accept__k">此前已确认</text>
+            <text class="accept__n">¥ {{quote.confirmedAmountBefore}}</text>
+          </view>
+          <view class="accept__row">
+            <text class="accept__k">{{quoteTypeText}}</text>
+            <text class="accept__n">¥ {{quote.currentAdditionalAmount}}</text>
+          </view>
+        </view>
+
+        <view class="accept__total">
+          <text class="accept__total-k">确认后累计应付</text>
+          <text class="accept__total-n">¥ {{quote.payableTotalAfterAcceptance}}</text>
+        </view>
+
+        <view class="accept__expiry" wx:if="{{expiresText}}">报价有效期至 {{expiresText}}</view>
+      </scroll-view>
+
+      <view class="accept__actions">
+        <view class="accept__action">
+          <van-button size="large" bind:click="onAcceptCancel" block>
+            暂不接受
+          </van-button>
+        </view>
+        <view class="accept__action">
+          <van-button size="large" type="primary" loading="{{acting}}" disabled="{{acting}}"
+                      bind:click="onAcceptConfirm" block>
+            确认接受
+          </van-button>
+        </view>
+      </view>
+    </view>
+  </van-dialog>
+
+  <van-popup show="{{rescheduleVisible}}" position="bottom" round bind:close="onRescheduleCancel">
+    <view class="resched">
+      <view class="resched__title">申请改约</view>
+      <picker mode="date" value="{{rescheduleDate}}" bindchange="onRescheduleDateChange">
+        <van-cell title="日期" value="{{rescheduleDate || '请选择'}}" is-link border="{{false}}"
+                  custom-class="fm-cell" title-class="fm-cell__title" value-class="fm-cell__value" />
+      </picker>
+      <picker mode="time" value="{{rescheduleStart}}" bindchange="onRescheduleStartChange">
+        <van-cell title="开始时间" value="{{rescheduleStart || '请选择'}}" is-link border="{{false}}"
+                  custom-class="fm-cell" title-class="fm-cell__title" value-class="fm-cell__value" />
+      </picker>
+      <picker mode="time" value="{{rescheduleEnd}}" bindchange="onRescheduleEndChange">
+        <van-cell title="结束时间" value="{{rescheduleEnd || '请选择'}}" is-link border="{{false}}"
+                  custom-class="fm-cell" title-class="fm-cell__title" value-class="fm-cell__value" />
+      </picker>
+      <van-field label="改约原因" type="textarea" value="{{rescheduleReason}}" maxlength="200"
+                 placeholder="请填写 2–200 字，说明需要改约的原因" autosize border="{{false}}"
+                 bind:change="onRescheduleReason" custom-class="fm-field"
+                 label-class="fm-field__label" input-class="fm-field__input" />
+      <view wx:if="{{rescheduleError}}" class="field-error">{{rescheduleError}}</view>
+      <view class="resched__actions">
+        <view class="resched__action">
+          <van-button size="large" bind:click="onRescheduleCancel" block>
+            暂不改约
+          </van-button>
+        </view>
+        <view class="resched__action">
+          <van-button size="large" type="primary" loading="{{acting}}" disabled="{{acting}}"
+                      bind:click="onRescheduleConfirm" block>
+            提交申请
+          </van-button>
+        </view>
+      </view>
+    </view>
+  </van-popup>
+
+  <fm-prompt show="{{promptShow}}" title="{{promptTitle}}" placeholder="{{promptPlaceholder}}"
+             maxlength="{{promptMaxlength}}" confirm-text="提交" loading="{{acting}}"
+             bind:confirm="onPromptConfirm" bind:cancel="onPromptCancel" />
+
+  <van-toast id="van-toast" />
+
+</view>

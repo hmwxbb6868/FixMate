@@ -1,0 +1,2 @@
+@import "../../../styles/technician.wxss";
+.record-context{display:flex;align-items:center;gap:18rpx;background:#FFF0E7;color:#C16136;border-radius:20rpx;padding:24rpx;margin-bottom:24rpx;}.record-context view view{font-size:28rpx;font-weight:600;color:#7E4D36;}.record-context text{display:block;font-size:20rpx;color:#B18D78;word-break:break-all;margin-top:6rpx;}

@@ -1,0 +1,4 @@
+@import "../../../styles/technician.wxss";
+.pool-intro{display:flex;align-items:center;gap:12rpx;color:#9A8171;font-size:23rpx;line-height:1.6;margin:0 2rpx 24rpx;}.pool-card{padding:30rpx;margin-bottom:22rpx;}.pool-top,.pool-bottom{display:flex;align-items:center;justify-content:space-between;gap:16rpx;}.pool-device{display:flex;align-items:center;gap:14rpx;font-size:32rpx;font-weight:700;color:#293240;}.pool-device van-icon{color:#D57A46;}.pool-symptom{font-size:28rpx;line-height:1.7;color:#536070;margin:22rpx 0;}.pool-area{font-size:25rpx;color:#8894A3;}.pool-bottom{border-top:1rpx solid #F0F2F5;margin-top:24rpx;padding-top:22rpx;font-size:22rpx;color:#A2AAB5;}.pool-bottom view{color:#DA561F;font-size:25rpx;font-weight:600;display:flex;align-items:center;gap:8rpx;}
+
+.pool-slot{display:flex;align-items:center;gap:14rpx;margin-top:22rpx;padding:18rpx 20rpx;background:#FFF5EC;border-radius:14rpx;font-size:25rpx;color:#A7643E;font-weight:600;line-height:1.6;}

@@ -1,0 +1,27 @@
+.fm-prompt__head {
+  padding: 32rpx 40rpx 8rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--fm-text-primary);
+}
+
+.fm-prompt__body {
+  padding: 8rpx 20rpx 0;
+}
+
+.fm-prompt__field {
+  background: var(--fm-bg-subtle);
+  border-radius: var(--fm-radius-md);
+  padding: 20rpx 24rpx !important;
+  font-size: 30rpx !important;
+}
+
+.fm-prompt__actions {
+  display: flex;
+  gap: 24rpx;
+  padding: 32rpx 40rpx 40rpx;
+}
+.fm-prompt__action {
+  flex: 1;
+  min-width: 0;
+}

@@ -1,0 +1,40 @@
+<view class="records-page">
+  <view wx:if="{{loading}}" class="records-state"><van-loading>正在读取报修详情…</van-loading></view>
+  <view wx:elif="{{error}}" class="records-state">{{error}}<van-button plain bind:click="load">重新读取</van-button><van-button plain bind:click="onBackToRecords">返回报修记录</van-button></view>
+  <block wx:elif="{{record}}">
+    <view class="records-head records-head--summary"><view class="records-title">{{statusText}}</view><view class="records-subtitle">{{record.repairRequest.repairNo}}</view><view class="records-meta">{{timeText}}</view></view>
+    <view class="records-card">
+      <view class="records-field"><view class="records-field__label">设备</view><view class="records-field__value">{{deviceText}}</view></view>
+      <view class="records-field"><view class="records-field__label">故障描述</view><view class="records-field__value">{{record.repairRequest.symptomDescription || '尚未填写'}}</view></view>
+      <view wx:if="{{record.repairRequest.errorCodeText}}" class="records-field"><view class="records-field__label">故障码</view><view>{{record.repairRequest.errorCodeText}}</view></view>
+      <view wx:if="{{occurredText}}" class="records-field"><view class="records-field__label">发生时间</view><view>{{occurredText}}</view></view>
+      <view wx:if="{{record.repairRequest.mediaFiles.length}}" class="records-field"><view class="records-field__label">故障照片</view>
+        <view class="records-gallery">
+          <block wx:for="{{record.repairRequest.mediaFiles}}" wx:key="id">
+            <view wx:if="{{failedImages[item.id] || !item.url}}" class="records-meta">图片加载失败，请下拉刷新</view>
+            <image wx:else class="records-photo" src="{{item.url}}" mode="aspectFill" data-url="{{item.url}}" data-id="{{item.id}}" bindtap="onPreview" binderror="onImageError" />
+          </block>
+        </view>
+      </view>
+    </view>
+    <view wx:if="{{!record.workOrderId && record.repairRequest.status !== 'DRAFT' && record.repairRequest.status !== 'CANCELLED'}}" class="records-note"><view class="records-field__value">{{record.repairRequest.status==='TRIAGED'?'平台已完成核对，请确认是否生成维修工单。':'尚未生成工单，等待平台受理。'}}</view></view>
+    <view wx:if="{{isPending}}" class="records-note">本机保留了一次结果待确认的提交。恢复时只核对原请求，不会重复创建报修。</view>
+    <view wx:if="{{convertError}}" class="records-note">{{convertError}}</view>
+    <view wx:if="{{record.workOrderStatus==='WAITING_CUSTOMER_VISIT'}}" class="records-note">安全事件已解除。请确认继续维修并选择期望上门时段，平台随后安排派单。</view>
+    <view wx:if="{{preferredText}}" class="records-card"><view class="records-field"><view class="records-field__label">期望上门时段</view><view class="records-field__value">{{preferredText}}</view></view></view>
+    <view wx:if="{{record.workOrderStatus==='CANCELLED' && record.cancellationFeeAmount}}" class="records-note">本次报修已取消，仅需支付上门费 ¥{{record.cancellationFeeAmount}}。</view>
+    <view class="records-actions">
+      <van-button block wx:if="{{canSelectVisit}}" type="primary" bind:click="onSelectVisit">{{record.workOrderStatus==='WAITING_CUSTOMER_VISIT'?'继续维修并选时段':record.workOrderStatus==='WAITING_MANUAL_REVIEW'?'选择或调整返修时段':preferredText?'调整期望时段':'选择期望上门时段'}}</van-button>
+      <van-button block wx:if="{{convertPending}}" type="primary" loading="{{converting}}" disabled="{{converting}}" bind:click="onConfirmConvert">恢复确认结果</van-button>
+      <van-button block wx:elif="{{canConvert}}" type="primary" bind:click="onConvert">确认生成维修工单</van-button>
+      <van-button block wx:if="{{isPending}}" type="primary" bind:click="onRecover">恢复提交核对</van-button>
+      <van-button block wx:if="{{canContinue}}" type="primary" bind:click="onContinue">继续填写</van-button>
+      <van-button block wx:if="{{canView}}" type="{{canSelectVisit ? 'default' : 'primary'}}" bind:click="onView">查看工单详情</van-button>
+      <van-button block wx:if="{{canCancel}}" plain loading="{{cancelling}}" bind:click="onCancel">{{record.workOrderId?'申请取消报修':'取消本次报修'}}</van-button>
+    </view>
+  </block>
+  <van-dialog show="{{cancelVisible}}" title="取消本次报修？" message="{{withVisitFee?'确认后工单结束，仅需支付上门费 ¥'+record.cancellationFeeAmount+'。':'确认后本次报修将结束，无需支付费用。'}}" show-cancel-button bind:confirm="onConfirmCancel" bind:cancel="onCloseDialog" />
+  <van-dialog show="{{convertVisible}}" title="确认生成维修工单？" message="平台已完成信息核对。确认后将生成维修工单，后续报价仍需你单独确认。" show-cancel-button bind:confirm="onConfirmConvert" bind:cancel="onCloseConvert" />
+  <van-toast id="van-toast" />
+</view>
+

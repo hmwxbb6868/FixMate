@@ -1,0 +1,26 @@
+<view class="page">
+  <view class="head">
+    <view class="head__eyebrow">信息采集</view>
+    <view class="head__title">该功能将在后续阶段启用</view>
+    <view class="head__sub">当前版本只提供报修提交与工单查询</view>
+  </view>
+
+  <view class="sec sec--first">
+    <view class="sec__label">说明</view>
+    <view class="hint-block">
+      后续版本将在这里进行故障信息补充、缺项追问与知识引用。该能力尚未接入，本页不会给出任何诊断结论。
+    </view>
+  </view>
+
+  <view class="sec" wx:if="{{sessionId}}">
+    <view class="sec__label">会话</view>
+    <view class="row">
+      <text class="row__k">会话编号</text>
+      <text class="row__v">{{sessionId}}</text>
+    </view>
+  </view>
+
+  <view class="actionbar">
+    <van-button type="primary" size="large" custom-class="btn-main" bind:click="onBackToRepair">返回</van-button>
+  </view>
+</view>

@@ -1,0 +1,1 @@
+Page({onLoad(options:Record<string,string>){const code=options.invitationCode||options.code||options.scene||'';wx.redirectTo({url:'/pages/workspace/binding/index'+(code?'?invitationCode='+encodeURIComponent(code):'')});}});

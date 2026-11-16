@@ -1,0 +1,24 @@
+<view class="records-page">
+  <view class="records-head"><view class="records-title">报修记录</view><view class="records-subtitle">每次报修，都可以在这里查看进度</view></view>
+  <view class="filters"><view wx:for="{{filters}}" wx:key="key" class="filter {{group === item.key ? 'filter--active' : ''}}" data-group="{{item.key}}" bindtap="onFilter" aria-role="button">{{item.text}}</view></view>
+  <view wx:if="{{pendingOutsideList}}" class="records-note" bindtap="onRecover">有一条本机提交结果待确认，点击恢复核对；不会重复创建报修</view>
+  <view wx:if="{{loading}}" class="records-state"><van-loading>正在读取报修记录…</van-loading></view>
+  <view wx:elif="{{error}}" class="records-state">{{error}}<van-button plain bind:click="refresh">重新读取</van-button></view>
+  <view wx:elif="{{!items.length}}" class="records-state">{{group === 'ALL' ? '暂无报修记录' : '该分类下暂无记录'}}<van-button wx:if="{{group === 'ALL'}}" plain bind:click="onNewRepair">去发起报修</van-button></view>
+  <block wx:else>
+    <view wx:if="{{refreshing}}" class="records-foot">正在刷新…</view>
+    <view wx:for="{{items}}" wx:key="id" class="records-entry" hover-class="records-entry--pressed" data-id="{{item.id}}" bindtap="onOpen" aria-role="button">
+      <view class="records-entry__top">
+        <view class="records-entry__icon"><van-icon name="orders-o" size="17px" /></view>
+        <text class="records-entry__title">{{item.title}}</text>
+        <text class="records-status {{item.workOrderStatus === 'COMPLETED' ? 'records-status--success' : !item.unresolved && (item.workOrderStatus === 'CANCELLED' || item.workOrderStatus === 'CLOSED_UNRESOLVED' || item.repairStatus === 'CANCELLED' || item.repairStatus === 'DRAFT') ? 'records-status--quiet' : ''}}">{{item.statusText}}</text>
+      </view>
+      <view class="records-summary">{{item.summaryText}}</view>
+      <view class="records-meta records-entry__foot"><text>{{item.timeText}}</text><van-icon name="arrow" size="13px" /></view>
+    </view>
+    <view wx:if="{{loadingMore}}" class="records-foot">正在加载…</view>
+    <view wx:elif="{{moreError}}" class="records-foot" bindtap="onReachBottom">{{moreError}} · 点击重试</view>
+    <view wx:elif="{{!hasMore}}" class="records-foot">已经到底了</view>
+  </block>
+</view>
+

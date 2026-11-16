@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "维修身份绑定",
+  "navigationBarBackgroundColor": "#F5F6F8",
+  "backgroundColor": "#F5F6F8",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "van-icon": "@vant/weapp/icon/index",
+    "tech-state": "/components/tech-state/index"
+  }
+}

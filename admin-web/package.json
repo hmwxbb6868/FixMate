@@ -1,0 +1,15 @@
+{
+  "name": "fixmate-admin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "node scripts/build.mjs --check",
+    "start": "node scripts/serve.mjs",
+    "prestart": "node scripts/build.mjs"
+  },
+  "devDependencies": {
+    "typescript": "5.6.3"
+  }
+}

@@ -1,0 +1,14 @@
+<van-popup show="{{show}}" position="bottom" round bind:close="onClose"
+           custom-style="padding-bottom: env(safe-area-inset-bottom);">
+  <view class="fm-prompt__head">{{title}}</view>
+  <view class="fm-prompt__body">
+    <van-field type="textarea" value="{{value}}" placeholder="{{placeholder}}" maxlength="{{maxlength}}"
+               show-word-limit autosize border="{{false}}" bind:change="onInput" custom-class="fm-prompt__field" />
+  </view>
+  <view class="fm-prompt__actions">
+    <van-button class="fm-prompt__action" block plain size="large" bind:click="onCancel">取消</van-button>
+    <van-button class="fm-prompt__action" block type="primary" size="large" loading="{{loading}}" bind:click="onConfirm">
+      {{confirmText}}
+    </van-button>
+  </view>
+</van-popup>

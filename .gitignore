@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+project.private.config.json
+.admin-session.key
+node_modules/
+dist/
+target/
+miniprogram_npm/
+.idea/
+.vscode/
+.DS_Store
+*.log

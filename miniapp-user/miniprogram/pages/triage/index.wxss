@@ -1,0 +1,10 @@
+/* U2 占位页复用 app.wxss 的基础样式，仅补充说明块间距 */
+.hint-block {
+  padding: 24rpx 0;
+  font-size: var(--fm-font-caption);
+  line-height: var(--fm-line-caption);
+  color: var(--fm-text-secondary);
+}
+.btn-main {
+  flex: 1;
+}

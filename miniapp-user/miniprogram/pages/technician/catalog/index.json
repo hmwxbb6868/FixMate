@@ -1,0 +1,1 @@
+{"navigationBarTitleText": "服务价目", "navigationBarBackgroundColor": "#F5F6F8", "backgroundColor": "#F5F6F8", "enablePullDownRefresh": true, "usingComponents": {"van-icon": "@vant/weapp/icon/index", "tech-state": "/components/tech-state/index", "tech-task-card": "/components/tech-task-card/index"}}

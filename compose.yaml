@@ -1,0 +1,95 @@
+name: fixmate-delivery
+
+services:
+  mysql:
+    image: mysql:8.0.46
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: fixmate
+      MYSQL_USER: fixmate
+      MYSQL_ROOT_PASSWORD: ${FIXMATE_MYSQL_ROOT_PASSWORD:?Run init-docker-env.ps1 first}
+      MYSQL_PASSWORD: ${FIXMATE_MYSQL_PASSWORD:?Run init-docker-env.ps1 first}
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_ai_ci", "--default-time-zone=+00:00"]
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=\"$$MYSQL_PASSWORD\" mysql -h 127.0.0.1 -u\"$$MYSQL_USER\" \"$$MYSQL_DATABASE\" -e 'SELECT 1' >/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 30s
+
+  redis:
+    image: redis:7.4.12
+    restart: unless-stopped
+    environment:
+      REDIS_PASSWORD: ${FIXMATE_REDIS_PASSWORD:?Run init-docker-env.ps1 first}
+    command: ["sh", "-c", "exec redis-server --requirepass \"$$REDIS_PASSWORD\" --appendonly yes"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "REDISCLI_AUTH=\"$$REDIS_PASSWORD\" redis-cli ping | grep -qx PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      LOGGING_LEVEL_COM_FIXMATE: INFO
+      MYSQL_URL: "jdbc:mysql://mysql:3306/fixmate?serverTimezone=UTC&allowPublicKeyRetrieval=true&sslMode=DISABLED"
+      MYSQL_USERNAME: fixmate
+      MYSQL_PASSWORD: ${FIXMATE_MYSQL_PASSWORD}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${FIXMATE_REDIS_PASSWORD}
+      JWT_SECRET: ${FIXMATE_JWT_SECRET:?Run init-docker-env.ps1 first}
+      WECHAT_APP_ID: ${WECHAT_APP_ID:-}
+      WECHAT_APP_SECRET: ${WECHAT_APP_SECRET:-}
+      ALIYUN_OSS_ENDPOINT: ${ALIYUN_OSS_ENDPOINT:-}
+      ALIYUN_OSS_BUCKET: ${ALIYUN_OSS_BUCKET:-}
+      ALIYUN_OSS_ACCESS_KEY_ID: ${ALIYUN_OSS_ACCESS_KEY_ID:-}
+      ALIYUN_OSS_ACCESS_KEY_SECRET: ${ALIYUN_OSS_ACCESS_KEY_SECRET:-}
+    ports:
+      - "${FIXMATE_API_BIND:-127.0.0.1}:8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:8080/actuator/health"]
+      interval: 5s
+      timeout: 4s
+      retries: 24
+      start_period: 30s
+
+  admin:
+    build:
+      context: .
+      dockerfile: admin-web/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      FIXMATE_ADMIN_DOCKER: "1"
+      FIXMATE_ADMIN_BACKEND: http://backend:8080
+      FIXMATE_ADMIN_SESSION_KEY_FILE: /var/lib/fixmate-admin/.admin-session.key
+    ports:
+      - "127.0.0.1:5173:5173"
+    volumes:
+      - admin-session:/var/lib/fixmate-admin
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:5173/').then(r=>{if(!r.ok)process.exitCode=1}).catch(()=>{process.exitCode=1})"]
+      interval: 5s
+      timeout: 4s
+      retries: 12
+
+volumes:
+  mysql-data:
+  redis-data:
+  admin-session:
